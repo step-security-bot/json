@@ -1,16 +1,18 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: /
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows/codeql-analysis.yml"
     schedule:
-      interval: daily
-
-  - package-ecosystem: pip
-    directory: /docs/mkdocs
+      interval: "monthly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows/labeler.yml"
     schedule:
-      interval: daily
-
-  - package-ecosystem: pip
-    directory: /tools/serve_header
-    schedule:
-      interval: daily
+      interval: "monthly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
