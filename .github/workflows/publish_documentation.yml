@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 # we don't want to have concurrent jobs, and we don't want to cancel running jobs to avoid broken publications
 concurrency:
@@ -23,10 +23,7 @@ jobs:
     if: github.repository == 'nlohmann/json'
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Install and update PlantUML
-        run: sudo apt-get update ; sudo apt-get install -y plantuml
+      - uses: actions/checkout@v4
 
       - name: Install virtual environment
         run: make install_venv -C docs/mkdocs
@@ -35,7 +32,7 @@ jobs:
         run: make build -C docs/mkdocs
 
       - name: Deploy documentation
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/mkdocs/site

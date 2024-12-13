@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.1...3.14)
 ## PROJECT
 ## name and version
 ##
-project(nlohmann_json VERSION 3.11.2 LANGUAGES CXX)
+project(nlohmann_json VERSION 3.11.3 LANGUAGES CXX)
 
 ##
 ## MAIN_PROJECT CHECK
@@ -40,7 +40,7 @@ endif()
 option(JSON_BuildTests                     "Build the unit tests when BUILD_TESTING is enabled." ${JSON_BuildTests_INIT})
 option(JSON_CI                             "Enable CI build targets." OFF)
 option(JSON_Diagnostics                    "Use extended diagnostic messages." OFF)
-option(JSON_GlobalUDLs                     "Place use-defined string literals in the global namespace." ON)
+option(JSON_GlobalUDLs                     "Place user-defined string literals in the global namespace." ON)
 option(JSON_ImplicitConversions            "Enable implicit conversions." ON)
 option(JSON_DisableEnumSerialization       "Disable default integer enum serialization." OFF)
 option(JSON_LegacyDiscardedValueComparison "Enable legacy discarded value comparison." OFF)
@@ -57,7 +57,11 @@ endif ()
 ##
 include(GNUInstallDirs)
 
-set(NLOHMANN_JSON_TARGET_NAME               ${PROJECT_NAME})
+if (NOT DEFINED NLOHMANN_JSON_TARGET_NAME)
+    # Allow overriding the target name when using FetchContent / add_subdirectory.
+    set(NLOHMANN_JSON_TARGET_NAME ${PROJECT_NAME})
+endif()
+
 set(NLOHMANN_JSON_CONFIG_INSTALL_DIR        "${CMAKE_INSTALL_DATADIR}/cmake/${PROJECT_NAME}" CACHE INTERNAL "")
 set(NLOHMANN_JSON_INCLUDE_INSTALL_DIR       "${CMAKE_INSTALL_INCLUDEDIR}")
 set(NLOHMANN_JSON_TARGETS_EXPORT_NAME       "${PROJECT_NAME}Targets")
@@ -77,19 +81,23 @@ else()
 endif()
 
 if (NOT JSON_ImplicitConversions)
-    message(STATUS "Implicit conversions are disabled")
+    message(STATUS "Implicit conversions are disabled (JSON_USE_IMPLICIT_CONVERSIONS=0)")
 endif()
 
 if (JSON_DisableEnumSerialization)
-    message(STATUS "Enum integer serialization is disabled")
+    message(STATUS "Enum integer serialization is disabled (JSON_DISABLE_ENUM_SERIALIZATION=0)")
 endif()
 
 if (JSON_LegacyDiscardedValueComparison)
-    message(STATUS "Legacy discarded value comparison enabled")
+    message(STATUS "Legacy discarded value comparison enabled (JSON_USE_LEGACY_DISCARDED_VALUE_COMPARISON=1)")
 endif()
 
 if (JSON_Diagnostics)
-    message(STATUS "Diagnostics enabled")
+    message(STATUS "Diagnostics enabled (JSON_DIAGNOSTICS=1)")
+endif()
+
+if (NOT JSON_GlobalUDLs)
+    message(STATUS "User-defined string literals are not put in the global namespace (JSON_USE_GLOBAL_UDLS=0)")
 endif()
 
 if (JSON_SystemInclude)
@@ -141,6 +149,7 @@ endif()
 CONFIGURE_FILE(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/pkg-config.pc.in"
     "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc"
+    @ONLY
 )
 
 ##
@@ -206,4 +215,5 @@ if(JSON_Install)
         FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc"
         DESTINATION ${NLOHMANN_JSON_PKGCONFIG_INSTALL_DIR}
     )
+    include(CPack)
 endif()
